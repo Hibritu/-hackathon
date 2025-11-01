@@ -5,9 +5,14 @@ dotenv.config()
 
 const { Pool } = pg
 
+// Determine SSL based on environment and DATABASE_URL
+const url = process.env.DATABASE_URL || ''
+const isLocalhost = /localhost|127\.0\.0\.1/i.test(url)
+const requiresSSL = /sslmode=require/i.test(url) || /neon\.tech/i.test(url)
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+  connectionString: url,
+  ssl: requiresSSL && !isLocalhost ? { rejectUnauthorized: false } : false
 })
 
 // Test connection
