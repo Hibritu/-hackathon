@@ -8,6 +8,8 @@ import orderRoutes from './routes/order.js';
 import userRoutes from './routes/user.js';
 import deliveryRoutes from './routes/delivery.js';
 import chapaRoutes from './routes/chapa.js';
+import orderPaymentRoutes from './routes/order-payment.js';
+import fishFreshnessRoutes from './routes/fish-freshness.js';
 import setupSwagger from './swagger.js';
 dotenv.config();
 
@@ -29,6 +31,8 @@ app.use('/api/order', orderRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/delivery', deliveryRoutes);
 app.use('/api/chapa', chapaRoutes);
+app.use('/api/order-payment', orderPaymentRoutes);
+app.use('/api/fish-freshness', fishFreshnessRoutes);
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'FishLink API is running' });

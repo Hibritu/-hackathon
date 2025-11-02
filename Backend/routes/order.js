@@ -4,10 +4,10 @@ import { authenticate, authorize } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// Create order (Buyer only)
+// Create order (Buyer only) - returns payment URL
 router.post('/', authenticate, authorize('BUYER'), async (req, res) => {
   try {
-    const { catchId, paymentStatus } = req.body;
+    const { catchId } = req.body;
 
     if (!catchId) {
       return res.status(400).json({ error: 'Catch ID is required' });
@@ -15,7 +15,7 @@ router.post('/', authenticate, authorize('BUYER'), async (req, res) => {
 
     // Check if catch exists and is verified
     const catchResult = await pool.query(
-      'SELECT id, verified FROM catches WHERE id = $1',
+      'SELECT id, verified, price FROM catches WHERE id = $1',
       [catchId]
     );
 
@@ -27,12 +27,14 @@ router.post('/', authenticate, authorize('BUYER'), async (req, res) => {
       return res.status(400).json({ error: 'This catch is not verified yet' });
     }
 
-    // Create order
+    const catchPrice = parseFloat(catchResult.rows[0].price);
+
+    // Create order with PENDING status
     const orderResult = await pool.query(
       `INSERT INTO orders (buyer_id, catch_id, payment_status) 
        VALUES ($1, $2, $3) 
        RETURNING id, buyer_id, catch_id, payment_status, date, created_at, updated_at`,
-      [req.user.id, catchId, paymentStatus || 'PENDING']
+      [req.user.id, catchId, 'PENDING']
     );
 
     const order = orderResult.rows[0];
@@ -174,11 +176,13 @@ router.patch('/:id/payment', authenticate, authorize('ADMIN'), async (req, res) 
   }
 });
 
-// Get buyer's orders
+// Get buyer's orders (optionally filter by payment status)
 router.get('/my-orders', authenticate, authorize('BUYER'), async (req, res) => {
   try {
-    const result = await pool.query(
-      `SELECT 
+    const { status } = req.query; // ?status=COMPLETED or ?status=PENDING
+    
+    let query = `
+      SELECT 
         o.id, o.buyer_id, o.catch_id, o.payment_status, o.date, o.created_at, o.updated_at,
         c.id as catch_id, c.fish_name, c.weight, c.price, c.freshness, c.lake, c.fisher_id, 
         c.verified, c.created_at as catch_created_at,
@@ -186,10 +190,18 @@ router.get('/my-orders', authenticate, authorize('BUYER'), async (req, res) => {
       FROM orders o
       JOIN catches c ON o.catch_id = c.id
       JOIN users u ON c.fisher_id = u.id
-      WHERE o.buyer_id = $1
-      ORDER BY o.created_at DESC`,
-      [req.user.id]
-    );
+      WHERE o.buyer_id = $1`;
+    
+    const params = [req.user.id];
+    
+    if (status) {
+      query += ` AND o.payment_status = $2`;
+      params.push(status);
+    }
+    
+    query += ` ORDER BY o.created_at DESC`;
+    
+    const result = await pool.query(query, params);
 
     const orders = result.rows.map(row => ({
       id: row.id,
@@ -223,11 +235,13 @@ router.get('/my-orders', authenticate, authorize('BUYER'), async (req, res) => {
   }
 });
 
-// Get all orders (Admin/Agent)
-router.get('/all', authenticate, authorize('ADMIN', 'AGENT'), async (req, res) => {
+// Get all orders (Admin only, optionally filter by payment status)
+router.get('/all', authenticate, authorize('ADMIN'), async (req, res) => {
   try {
-    const result = await pool.query(
-      `SELECT 
+    const { status } = req.query; // ?status=COMPLETED or ?status=PENDING
+    
+    let query = `
+      SELECT 
         o.id, o.buyer_id, o.catch_id, o.payment_status, o.date, o.created_at, o.updated_at,
         c.id as catch_id, c.fish_name, c.weight, c.price, c.freshness, c.lake, c.fisher_id, 
         c.verified, c.created_at as catch_created_at,
@@ -236,9 +250,18 @@ router.get('/all', authenticate, authorize('ADMIN', 'AGENT'), async (req, res) =
       FROM orders o
       JOIN catches c ON o.catch_id = c.id
       JOIN users u_fisher ON c.fisher_id = u_fisher.id
-      JOIN users u_buyer ON o.buyer_id = u_buyer.id
-      ORDER BY o.created_at DESC`
-    );
+      JOIN users u_buyer ON o.buyer_id = u_buyer.id`;
+    
+    const params = [];
+    
+    if (status) {
+      query += ` WHERE o.payment_status = $1`;
+      params.push(status);
+    }
+    
+    query += ` ORDER BY o.created_at DESC`;
+    
+    const result = await pool.query(query, params);
 
     const orders = result.rows.map(row => ({
       id: row.id,
