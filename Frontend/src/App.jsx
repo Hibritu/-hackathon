@@ -12,6 +12,9 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import VerifyOTP from './pages/VerifyOTP';
 import QRVerify from './pages/QRVerify';
+import Freshness from './pages/Freshness';
+import PaymentSuccess from './pages/PaymentSuccess';
+import Market from './pages/Market';
 
 // Dashboards
 import AdminDashboard from './pages/dashboards/AdminDashboard';
@@ -33,6 +36,9 @@ function App() {
                 <Route path="/register" element={<Register />} />
                 <Route path="/verify-otp" element={<VerifyOTP />} />
                 <Route path="/verify" element={<QRVerify />} />
+                <Route path="/freshness" element={<Freshness />} />
+                <Route path="/payment/success" element={<PaymentSuccess />} />
+                <Route path="/market" element={<Market />} />
 
                 {/* Admin Dashboard */}
                 <Route
@@ -106,6 +112,7 @@ function App() {
 }
 
 export default App;
+
 
 
 

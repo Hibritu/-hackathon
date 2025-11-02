@@ -33,6 +33,14 @@ app.use('/api/delivery', deliveryRoutes);
 app.use('/api/chapa', chapaRoutes);
 app.use('/api/order-payment', orderPaymentRoutes);
 app.use('/api/fish-freshness', fishFreshnessRoutes);
+// Root route
+app.get('/', (req, res) => {
+  res.json({
+    message: 'FishLink Backend API',
+    docs: '/api-docs',
+    health: '/api/health'
+  });
+});
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'FishLink API is running' });

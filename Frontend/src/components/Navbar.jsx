@@ -64,6 +64,18 @@ const Navbar = () => {
                 >
                   Verify QR
                 </Link>
+                <Link
+                  to="/market"
+                  className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600"
+                >
+                  Market
+                </Link>
+                <Link
+                  to="/freshness"
+                  className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600"
+                >
+                  Freshness AI
+                </Link>
                 <div className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-200">
                   <FiUser className="mr-1" />
                   <span>{user.name}</span>
@@ -99,6 +111,18 @@ const Navbar = () => {
                   className="px-4 py-2 rounded-md text-sm font-medium text-white bg-primary-600 hover:bg-primary-700"
                 >
                   Login
+                </Link>
+                <Link
+                  to="/market"
+                  className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600"
+                >
+                  Market
+                </Link>
+                <Link
+                  to="/freshness"
+                  className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600"
+                >
+                  Freshness AI
                 </Link>
                 <Link
                   to="/register"
@@ -148,6 +172,20 @@ const Navbar = () => {
                 >
                   Verify QR
                 </Link>
+                <Link
+                  to="/market"
+                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Market
+                </Link>
+                <Link
+                  to="/freshness"
+                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Freshness AI
+                </Link>
                 <div className="px-3 py-2 text-base text-gray-700 dark:text-gray-200">
                   <span>{user.name} ({user.role})</span>
                 </div>
@@ -180,6 +218,20 @@ const Navbar = () => {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Register
+                </Link>
+                <Link
+                  to="/market"
+                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Market
+                </Link>
+                <Link
+                  to="/freshness"
+                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Freshness AI
                 </Link>
               </>
             )}

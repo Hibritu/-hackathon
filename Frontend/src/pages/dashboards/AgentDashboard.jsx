@@ -28,16 +28,7 @@ const AgentDashboard = () => {
     }
   };
 
-  const handleVerify = async (id, verified) => {
-    try {
-      await catchAPI.verify(id, { verified });
-      toast.success(verified ? 'Catch verified!' : 'Verification removed');
-      loadCatches();
-    } catch (error) {
-      const message = error.response?.data?.error || 'Failed to update verification';
-      toast.error(message);
-    }
-  };
+  // Verification is ADMIN-only. Agent dashboard no longer exposes verify actions.
 
   const handleRegisterFisher = async (e) => {
     e.preventDefault();
@@ -64,7 +55,7 @@ const AgentDashboard = () => {
               Agent Dashboard
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
-              Verify catches and manage fishers
+              View catches and manage fishers
             </p>
           </div>
           <button
@@ -229,22 +220,7 @@ const AgentDashboard = () => {
                           </div>
                         )}
                       </div>
-                      <div className="ml-4 flex space-x-2">
-                        <button
-                          onClick={() => handleVerify(item.id, true)}
-                          className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm flex items-center"
-                        >
-                          <FiCheckCircle className="mr-1" />
-                          Verify
-                        </button>
-                        <button
-                          onClick={() => handleVerify(item.id, false)}
-                          className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 text-sm flex items-center"
-                        >
-                          <FiXCircle className="mr-1" />
-                          Reject
-                        </button>
-                      </div>
+                      {/* Verification actions removed for agents */}
                     </div>
                   </div>
                 ))}
@@ -304,6 +280,9 @@ const AgentDashboard = () => {
 };
 
 export default AgentDashboard;
+
+
+
 
 
 

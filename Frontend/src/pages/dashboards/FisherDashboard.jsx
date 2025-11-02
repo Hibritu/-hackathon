@@ -15,6 +15,7 @@ const FisherDashboard = () => {
     price: '',
     freshness: '',
     lake: '',
+    nationalId: '',
   });
 
   useEffect(() => {
@@ -60,6 +61,7 @@ const FisherDashboard = () => {
       price: item.price,
       freshness: item.freshness,
       lake: item.lake,
+      nationalId: item.nationalId || '',
     });
     setShowAddForm(true);
   };
@@ -84,6 +86,7 @@ const FisherDashboard = () => {
       price: '',
       freshness: '',
       lake: '',
+      nationalId: '',
     });
   };
 
@@ -175,6 +178,7 @@ const FisherDashboard = () => {
                     <option value="Frozen">Frozen</option>
                     <option value="Dried">Dried</option>
                     <option value="Processed">Processed</option>
+                    <option value="Wasted">Wasted</option>
                   </select>
                 </div>
                 <div className="md:col-span-2">
@@ -186,6 +190,17 @@ const FisherDashboard = () => {
                     required
                     value={formData.lake}
                     onChange={(e) => setFormData({ ...formData, lake: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    National ID (optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.nationalId}
+                    onChange={(e) => setFormData({ ...formData, nationalId: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
                   />
                 </div>
@@ -262,6 +277,11 @@ const FisherDashboard = () => {
                       <div>
                         <span className="font-medium">Lake:</span> {item.lake}
                       </div>
+                      {item.nationalId && (
+                        <div>
+                          <span className="font-medium">National ID:</span> {item.nationalId}
+                        </div>
+                      )}
                     </div>
                     {item.qrEncrypted && (
                       <div className="mb-4 flex justify-center">
@@ -296,6 +316,9 @@ const FisherDashboard = () => {
 };
 
 export default FisherDashboard;
+
+
+
 
 
 

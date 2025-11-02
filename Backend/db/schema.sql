@@ -1,3 +1,18 @@
+-- USERS
+CREATE TABLE IF NOT EXISTS users (
+  id              SERIAL PRIMARY KEY,
+  name            VARCHAR(150) NOT NULL,
+  phone           VARCHAR(30),
+  email           VARCHAR(255) UNIQUE,
+  password        VARCHAR(255),
+  role            VARCHAR(30) NOT NULL DEFAULT 'BUYER',
+  email_verified  BOOLEAN NOT NULL DEFAULT FALSE,
+  created_at      TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_users_email ON users (email);
+CREATE INDEX IF NOT EXISTS idx_users_phone ON users (phone);
+
 -- CATCHES
 CREATE TABLE IF NOT EXISTS catches (
   id           SERIAL PRIMARY KEY,

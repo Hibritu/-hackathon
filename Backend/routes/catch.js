@@ -261,7 +261,7 @@ router.delete('/:id', authenticate, authorize('FISHER'), async (req, res) => {
 /**
  * Admin/Agent: Verify catch
  */
-router.patch('/:id/verify', authenticate, authorize('AGENT', 'ADMIN'), async (req, res) => {
+router.patch('/:id/verify', authenticate, authorize('ADMIN'), async (req, res) => {
   try {
     const { id } = req.params;
     const { verified } = req.body;

@@ -91,5 +91,19 @@ export const paymentAPI = {
   initiatePayment: (data) => api.post('/chapa/pay', data),
 };
 
+// Order + Payment combined API
+export const orderPaymentAPI = {
+  createAndPay: (data) => api.post('/order-payment/create-and-pay', data),
+};
+
+// Fish Freshness API
+export const fishFreshnessAPI = {
+  detect: (formData) =>
+    api.post('/fish-freshness/detect', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }),
+  detectUrl: (data) => api.post('/fish-freshness/detect-url', data),
+};
+
 export default api;
 

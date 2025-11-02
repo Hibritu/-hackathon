@@ -21,6 +21,7 @@ const AdminDashboard = () => {
   });
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [catches, setCatches] = useState([]);
 
   useEffect(() => {
     loadData();
@@ -35,6 +36,7 @@ const AdminDashboard = () => {
       ]);
 
       const catches = catchesRes.data.catches || [];
+      setCatches(catches);
       const allOrders = ordersRes.data.orders || [];
       const deliveries = deliveriesRes.data.deliveries || [];
 
@@ -54,6 +56,20 @@ const AdminDashboard = () => {
       setLoading(false);
     }
   };
+
+  const handleVerify = async (id, verified) => {
+    try {
+      await catchAPI.verify(id, { verified });
+      toast.success(verified ? 'Catch verified!' : 'Verification removed');
+      loadData();
+    } catch (error) {
+      const message = error.response?.data?.error || 'Failed to update verification';
+      toast.error(message);
+    }
+  };
+
+  const unverifiedCatches = catches.filter((c) => !c.verified);
+  const verifiedCatches = catches.filter((c) => c.verified);
 
   const handleUpdatePayment = async (orderId, status) => {
     try {
@@ -76,6 +92,82 @@ const AdminDashboard = () => {
           <p className="text-gray-600 dark:text-gray-400">
             Overview of the entire FishLink system
           </p>
+        </div>
+
+        {/* Pending Verification */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow mb-8">
+          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
+              Pending Verification
+            </h2>
+          </div>
+          <div className="p-6">
+            {loading ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
+              </div>
+            ) : unverifiedCatches.length === 0 ? (
+              <p className="text-center text-gray-500 dark:text-gray-400 py-8">No pending verifications</p>
+            ) : (
+              <div className="space-y-4">
+                {unverifiedCatches.map((item) => (
+                  <div key={item.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{item.fishName}</h3>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-600 dark:text-gray-400">
+                          <div><span className="font-medium">Weight:</span> {item.weight} kg</div>
+                          <div><span className="font-medium">Price:</span> ETB {item.price}</div>
+                          <div><span className="font-medium">Freshness:</span> {item.freshness}</div>
+                          <div><span className="font-medium">Lake:</span> {item.lake}</div>
+                        </div>
+                        {item.fisher && (
+                          <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                            <span className="font-medium">Fisher:</span> {item.fisher.name} - {item.fisher.phone}
+                          </div>
+                        )}
+                      </div>
+                      <div className="ml-4 flex space-x-2">
+                        <button onClick={() => handleVerify(item.id, true)} className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm">Verify</button>
+                        <button onClick={() => handleVerify(item.id, false)} className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 text-sm">Reject</button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Verified Catches */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow mb-8">
+          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Verified Catches</h2>
+          </div>
+          <div className="p-6">
+            {verifiedCatches.length === 0 ? (
+              <p className="text-center text-gray-500 dark:text-gray-400 py-8">No verified catches yet</p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {verifiedCatches.map((item) => (
+                  <div key={item.id} className="border border-green-200 dark:border-green-800 rounded-lg p-4">
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{item.fishName}</h3>
+                      <span className="px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 rounded text-xs">Verified</span>
+                    </div>
+                    <div className="space-y-1 text-sm text-gray-600 dark:text-gray-400">
+                      <div><span className="font-medium">Weight:</span> {item.weight} kg</div>
+                      <div><span className="font-medium">Price:</span> ETB {item.price}</div>
+                      <div><span className="font-medium">Lake:</span> {item.lake}</div>
+                    </div>
+                    <div className="mt-3">
+                      <button onClick={() => handleVerify(item.id, false)} className="px-3 py-1 text-xs bg-yellow-600 text-white rounded hover:bg-yellow-700">Unverify</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Stats Grid */}
@@ -245,6 +337,9 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
+
+
+
 
 
 

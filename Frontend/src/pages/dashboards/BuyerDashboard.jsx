@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { catchAPI, orderAPI } from '../../services/api';
+import { catchAPI, orderAPI, orderPaymentAPI } from '../../services/api';
 import toast from 'react-hot-toast';
 import { FiShoppingCart, FiPackage, FiSearch, FiCheck } from 'react-icons/fi';
 
@@ -27,6 +27,21 @@ const BuyerDashboard = () => {
       toast.error('Failed to load catches');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleOrderAndPay = async (catchId) => {
+    try {
+      const res = await orderPaymentAPI.createAndPay({ catchId });
+      const checkout = res.data?.payment?.checkout_url;
+      if (checkout) {
+        window.open(checkout, '_blank');
+      }
+      toast.success('Order created. Redirecting to payment...');
+      loadOrders();
+    } catch (error) {
+      const message = error.response?.data?.error || 'Failed to start payment';
+      toast.error(message);
     }
   };
 
@@ -172,13 +187,22 @@ const BuyerDashboard = () => {
                               </div>
                             )}
                           </div>
-                          <button
-                            onClick={() => handleOrder(item.id)}
-                            className="ml-4 px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 flex items-center"
-                          >
-                            <FiShoppingCart className="mr-2" />
-                            Order
-                          </button>
+                          <div className="ml-4 flex space-x-2">
+                            <button
+                              onClick={() => handleOrder(item.id)}
+                              className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 flex items-center"
+                            >
+                              <FiShoppingCart className="mr-2" />
+                              Order
+                            </button>
+                            <button
+                              onClick={() => handleOrderAndPay(item.id)}
+                              className="px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 flex items-center"
+                            >
+                              <FiCheck className="mr-2" />
+                              Order & Pay
+                            </button>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -247,6 +271,9 @@ const BuyerDashboard = () => {
 };
 
 export default BuyerDashboard;
+
+
+
 
 
 
