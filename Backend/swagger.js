@@ -72,6 +72,20 @@ const swaggerDefinition = {
           updatedAt: { type: 'string', format: 'date-time' }
         }
       },
+      Delivery: {
+        type: 'object',
+        properties: {
+          id: { type: 'integer' },
+          orderId: { type: 'integer' },
+          deliveryPersonId: { type: 'integer' },
+          status: { type: 'string', enum: ['PENDING', 'PICKED', 'IN_TRANSIT', 'DELIVERED', 'FAILED'] },
+          notes: { type: 'string' },
+          pickedAt: { type: 'string', format: 'date-time' },
+          deliveredAt: { type: 'string', format: 'date-time' },
+          createdAt: { type: 'string', format: 'date-time' },
+          updatedAt: { type: 'string', format: 'date-time' }
+        }
+      },
       Error: {
         type: 'object',
         properties: {
@@ -703,6 +717,178 @@ const paths = {
         },
         400: { description: 'Invalid QR code or decryption failed' },
         404: { description: 'Catch not found' }
+      }
+    }
+  },
+  '/api/delivery': {
+    post: {
+      tags: ['Delivery'],
+      summary: 'Create delivery for order (ADMIN only)',
+      description: 'Create a delivery record for a completed order',
+      security: [{ bearerAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              required: ['orderId'],
+              properties: {
+                orderId: { type: 'integer', example: 1 },
+                deliveryPersonId: { type: 'integer', example: 5 },
+                notes: { type: 'string', example: 'Handle with care' }
+              }
+            }
+          }
+        }
+      },
+      responses: {
+        201: { description: 'Delivery created successfully' },
+        400: { description: 'Order not found or delivery already exists' },
+        401: { description: 'Unauthorized' },
+        403: { description: 'Forbidden - ADMIN role required' }
+      }
+    }
+  },
+  '/api/delivery/{id}/status': {
+    patch: {
+      tags: ['Delivery'],
+      summary: 'Update delivery status (ADMIN or assigned delivery person)',
+      description: 'Update delivery status. Auto-sets picked_at and delivered_at timestamps.',
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        { in: 'path', name: 'id', required: true, schema: { type: 'integer' } }
+      ],
+      requestBody: {
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                status: { type: 'string', enum: ['PENDING', 'PICKED', 'IN_TRANSIT', 'DELIVERED', 'FAILED'], example: 'IN_TRANSIT' },
+                notes: { type: 'string' }
+              }
+            }
+          }
+        }
+      },
+      responses: {
+        200: { description: 'Delivery status updated' },
+        403: { description: 'Access denied' },
+        404: { description: 'Delivery not found' }
+      }
+    }
+  },
+  '/api/delivery/{id}/assign': {
+    patch: {
+      tags: ['Delivery'],
+      summary: 'Assign delivery person (ADMIN only)',
+      description: 'Assign a delivery person to a delivery',
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        { in: 'path', name: 'id', required: true, schema: { type: 'integer' } }
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              required: ['deliveryPersonId'],
+              properties: {
+                deliveryPersonId: { type: 'integer', example: 5 }
+              }
+            }
+          }
+        }
+      },
+      responses: {
+        200: { description: 'Delivery person assigned' },
+        403: { description: 'Forbidden - ADMIN role required' },
+        404: { description: 'Delivery or person not found' }
+      }
+    }
+  },
+  '/api/delivery/order/{orderId}': {
+    get: {
+      tags: ['Delivery'],
+      summary: 'Get delivery by order ID (buyer, fisher, delivery person, or ADMIN)',
+      description: 'Get delivery details for a specific order',
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        { in: 'path', name: 'orderId', required: true, schema: { type: 'integer' } }
+      ],
+      responses: {
+        200: {
+          description: 'Delivery details',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  delivery: { $ref: '#/components/schemas/Delivery' }
+                }
+              }
+            }
+          }
+        },
+        403: { description: 'Access denied' },
+        404: { description: 'Delivery not found' }
+      }
+    }
+  },
+  '/api/delivery/all': {
+    get: {
+      tags: ['Delivery'],
+      summary: 'List all deliveries (ADMIN only)',
+      description: 'Get all deliveries in the system',
+      security: [{ bearerAuth: [] }],
+      responses: {
+        200: {
+          description: 'List of all deliveries',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  deliveries: {
+                    type: 'array',
+                    items: { $ref: '#/components/schemas/Delivery' }
+                  }
+                }
+              }
+            }
+          }
+        },
+        401: { description: 'Unauthorized' },
+        403: { description: 'Forbidden - ADMIN role required' }
+      }
+    }
+  },
+  '/api/delivery/my-deliveries': {
+    get: {
+      tags: ['Delivery'],
+      summary: 'Get deliveries assigned to current user (delivery person)',
+      description: 'List all deliveries assigned to the authenticated delivery person',
+      security: [{ bearerAuth: [] }],
+      responses: {
+        200: {
+          description: 'List of assigned deliveries',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  deliveries: {
+                    type: 'array',
+                    items: { $ref: '#/components/schemas/Delivery' }
+                  }
+                }
+              }
+            }
+          }
+        },
+        401: { description: 'Unauthorized' }
       }
     }
   }

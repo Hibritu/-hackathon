@@ -6,6 +6,7 @@ import catchRoutes from './routes/catch.js';
 import verifyRoutes from './routes/verify.js';
 import orderRoutes from './routes/order.js';
 import userRoutes from './routes/user.js';
+import deliveryRoutes from './routes/delivery.js';
 import setupSwagger from './swagger.js';
 dotenv.config();
 
@@ -25,6 +26,7 @@ app.use('/api/catch', catchRoutes);
 app.use('/api/verify', verifyRoutes);
 app.use('/api/order', orderRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api/delivery', deliveryRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
