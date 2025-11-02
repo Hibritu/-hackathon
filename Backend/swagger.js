@@ -893,11 +893,111 @@ const paths = {
       }
     }
   },
+  '/api/order-payment/create-and-pay': {
+    post: {
+      tags: ['Payment'],
+      summary: 'Create order and initiate payment (BUYER only)',
+      description: 'Create an order for a verified catch and initialize Chapa payment in one step',
+      security: [{ bearerAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              required: ['catchId'],
+              properties: {
+                catchId: { type: 'integer', example: 1 }
+              }
+            }
+          }
+        }
+      },
+      responses: {
+        201: {
+          description: 'Order created and payment initialized',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  message: { type: 'string' },
+                  order: {
+                    type: 'object',
+                    properties: {
+                      id: { type: 'integer' },
+                      buyerId: { type: 'integer' },
+                      catchId: { type: 'integer' },
+                      paymentStatus: { type: 'string' },
+                      amount: { type: 'number' },
+                      createdAt: { type: 'string' }
+                    }
+                  },
+                  payment: {
+                    type: 'object',
+                    properties: {
+                      tx_ref: { type: 'string' },
+                      checkout_url: { type: 'string', description: 'Redirect user to this URL for payment' },
+                      status: { type: 'string' }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        400: { description: 'Catch not verified or not found' },
+        401: { description: 'Unauthorized' },
+        403: { description: 'Forbidden - BUYER role required' },
+        500: { description: 'Payment initialization failed' }
+      }
+    }
+  },
+  '/api/chapa/callback': {
+    post: {
+      tags: ['Payment'],
+      summary: 'Chapa payment callback (webhook)',
+      description: 'Webhook endpoint for Chapa to notify payment status. Automatically updates order and creates delivery.',
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                tx_ref: { type: 'string' },
+                status: { type: 'string', enum: ['success', 'failed'] }
+              }
+            }
+          }
+        }
+      },
+      responses: {
+        200: { description: 'Callback processed successfully' },
+        400: { description: 'Invalid transaction reference' },
+        404: { description: 'Order not found' }
+      }
+    }
+  },
+  '/api/chapa/verify/{tx_ref}': {
+    get: {
+      tags: ['Payment'],
+      summary: 'Verify payment status manually',
+      description: 'Manually verify a payment transaction with Chapa',
+      parameters: [
+        { in: 'path', name: 'tx_ref', required: true, schema: { type: 'string' }, description: 'Transaction reference' }
+      ],
+      responses: {
+        200: { description: 'Payment verification result' },
+        500: { description: 'Verification failed' }
+      }
+    }
+  },
   '/api/chapa/pay': {
     post: {
       tags: ['Payment'],
-      summary: 'Initialize Chapa payment',
-      description: 'Initialize a payment transaction with Chapa payment gateway',
+      summary: 'Initialize Chapa payment (standalone)',
+      description: 'Initialize a payment transaction with Chapa payment gateway (for custom use)',
       requestBody: {
         required: true,
         content: {
@@ -941,6 +1041,115 @@ const paths = {
           }
         },
         500: { description: 'Payment initiation failed' }
+      }
+    }
+  },
+  '/api/fish-freshness/detect': {
+    post: {
+      tags: ['Fish Freshness'],
+      summary: 'Detect fish freshness from uploaded image (No auth required)',
+      description: 'Upload a fish image to analyze freshness using Roboflow AI model. Returns "fresh" or "not fresh" classification. Confidence threshold set to 40%.',
+      requestBody: {
+        required: true,
+        content: {
+          'multipart/form-data': {
+            schema: {
+              type: 'object',
+              required: ['image'],
+              properties: {
+                image: {
+                  type: 'string',
+                  format: 'binary',
+                  description: 'Fish image file (jpeg, jpg, png, gif - max 10MB)'
+                }
+              }
+            }
+          }
+        }
+      },
+      responses: {
+        200: {
+          description: 'Freshness analysis result',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  freshness: { type: 'string', example: 'fresh', description: 'Classification: fresh or not fresh' },
+                  confidence: { type: 'number', example: 0.95 },
+                  confidencePercent: { type: 'string', example: '95.00' },
+                  message: { type: 'string', example: 'The fish is likely fresh (95.00% confident).' },
+                  allPredictions: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        class: { type: 'string' },
+                        confidence: { type: 'number' },
+                        confidencePercent: { type: 'string' }
+                      }
+                    }
+                  },
+                  analyzedBy: { type: 'string' },
+                  analyzedAt: { type: 'string', format: 'date-time' }
+                }
+              }
+            }
+          }
+        },
+        400: { description: 'No image uploaded or invalid file type' },
+        401: { description: 'Unauthorized' },
+        500: { description: 'AI analysis failed' }
+      }
+    }
+  },
+  '/api/fish-freshness/detect-url': {
+    post: {
+      tags: ['Fish Freshness'],
+      summary: 'Detect fish freshness from image URL (No auth required)',
+      description: 'Analyze fish freshness from an image URL using Roboflow AI model. Confidence threshold set to 40%.',
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              required: ['imageUrl'],
+              properties: {
+                imageUrl: {
+                  type: 'string',
+                  format: 'uri',
+                  example: 'https://example.com/fish.jpg',
+                  description: 'Public URL of fish image'
+                }
+              }
+            }
+          }
+        }
+      },
+      responses: {
+        200: {
+          description: 'Freshness analysis result',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  freshness: { type: 'string', example: 'fresh' },
+                  confidence: { type: 'number', example: 0.95 },
+                  confidencePercent: { type: 'string', example: '95.00' },
+                  message: { type: 'string' },
+                  allPredictions: { type: 'array' },
+                  analyzedBy: { type: 'string' },
+                  analyzedAt: { type: 'string', format: 'date-time' }
+                }
+              }
+            }
+          }
+        },
+        400: { description: 'Image URL is required' },
+        401: { description: 'Unauthorized' },
+        500: { description: 'AI analysis failed' }
       }
     }
   }

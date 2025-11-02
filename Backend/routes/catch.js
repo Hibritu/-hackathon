@@ -69,7 +69,7 @@ router.post('/', authenticate, authorize('FISHER'), async (req, res) => {
 });
 
 // Get all verified catches (Buyers)
-router.get('/', authenticate, async (req, res) => {
+router.get('/',  async (req, res) => {
   try {
     const { lake, fishName, freshness } = req.query;
 
