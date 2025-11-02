@@ -46,6 +46,7 @@ const swaggerDefinition = {
           freshness: { type: 'string' },
           lake: { type: 'string' },
           fisherId: { type: 'integer' },
+          nationalId: { type: 'string', nullable: true },
           qrEncrypted: { type: 'string' },
           verified: { type: 'boolean' },
           createdAt: { type: 'string', format: 'date-time' },
@@ -303,13 +304,13 @@ const paths = {
   '/api/catch': {
     get: {
       tags: ['Catch'],
-      summary: 'List verified catches (any authenticated user)',
-      description: 'Get all verified catches with optional filters',
-      security: [{ bearerAuth: [] }],
+      summary: 'List verified catches (public endpoint)',
+      description: 'Get all verified catches with optional filters. No authentication required.',
       parameters: [
         { in: 'query', name: 'lake', schema: { type: 'string' }, description: 'Filter by lake name' },
         { in: 'query', name: 'fishName', schema: { type: 'string' }, description: 'Filter by fish name' },
-        { in: 'query', name: 'freshness', schema: { type: 'string' }, description: 'Filter by freshness' }
+        { in: 'query', name: 'freshness', schema: { type: 'string' }, description: 'Filter by freshness' },
+        { in: 'query', name: 'nationalId', schema: { type: 'string' }, description: 'Filter by national ID' }
       ],
       responses: {
         200: {
@@ -327,8 +328,7 @@ const paths = {
               }
             }
           }
-        },
-        401: { description: 'Unauthorized' }
+        }
       }
     },
     post: {
@@ -348,7 +348,8 @@ const paths = {
                 weight: { type: 'number', example: 5.2 },
                 price: { type: 'number', example: 1200 },
                 freshness: { type: 'string', example: 'Fresh' },
-                lake: { type: 'string', example: 'Tana' }
+                lake: { type: 'string', example: 'Lake Tana' },
+                nationalId: { type: 'string', example: '1234567890', description: 'Optional national ID' }
               }
             }
           }
@@ -453,8 +454,8 @@ const paths = {
   '/api/catch/{id}/verify': {
     patch: {
       tags: ['Catch'],
-      summary: 'Verify/unverify catch (ADMIN only)',
-      description: 'Approve or reject a catch. Only ADMIN can verify catches.',
+      summary: 'Verify/unverify catch (AGENT or ADMIN only)',
+      description: 'Approve or reject a catch. AGENT or ADMIN can verify catches.',
       security: [{ bearerAuth: [] }],
       parameters: [
         { in: 'path', name: 'id', required: true, schema: { type: 'integer' } }
@@ -476,7 +477,7 @@ const paths = {
       responses: {
         200: { description: 'Verification status updated' },
         401: { description: 'Unauthorized' },
-        403: { description: 'Forbidden - ADMIN role required' },
+        403: { description: 'Forbidden - AGENT or ADMIN role required' },
         404: { description: 'Catch not found' }
       }
     }
@@ -484,8 +485,8 @@ const paths = {
   '/api/catch/all': {
     get: {
       tags: ['Catch'],
-      summary: 'List all catches including unverified (ADMIN only)',
-      description: 'Get all catches (verified and unverified). ADMIN only.',
+      summary: 'List all catches including unverified (AGENT or ADMIN only)',
+      description: 'Get all catches (verified and unverified). AGENT or ADMIN only.',
       security: [{ bearerAuth: [] }],
       responses: {
         200: {
@@ -505,7 +506,7 @@ const paths = {
           }
         },
         401: { description: 'Unauthorized' },
-        403: { description: 'Forbidden - ADMIN role required' }
+        403: { description: 'Forbidden - AGENT or ADMIN role required' }
       }
     }
   },
@@ -562,7 +563,7 @@ const paths = {
       responses: {
         200: { description: 'Payment status updated' },
         401: { description: 'Unauthorized' },
-        403: { description: 'Forbidden - ADMIN role required' },
+        403: { description: 'Forbidden - AGENT or ADMIN role required' },
         404: { description: 'Order not found' }
       }
     }
@@ -571,8 +572,11 @@ const paths = {
     get: {
       tags: ['Order'],
       summary: 'List buyer\'s orders (BUYER only)',
-      description: 'Get all orders placed by the authenticated buyer',
+      description: 'Get all orders placed by the authenticated buyer. Optionally filter by payment status.',
       security: [{ bearerAuth: [] }],
+      parameters: [
+        { in: 'query', name: 'status', schema: { type: 'string', enum: ['PENDING', 'COMPLETED', 'FAILED'] }, description: 'Filter by payment status' }
+      ],
       responses: {
         200: {
           description: 'List of orders',
@@ -599,8 +603,11 @@ const paths = {
     get: {
       tags: ['Order'],
       summary: 'List all orders (ADMIN only)',
-      description: 'Get all orders in the system. ADMIN only.',
+      description: 'Get all orders in the system. ADMIN only. Optionally filter by payment status.',
       security: [{ bearerAuth: [] }],
+      parameters: [
+        { in: 'query', name: 'status', schema: { type: 'string', enum: ['PENDING', 'COMPLETED', 'FAILED'] }, description: 'Filter by payment status' }
+      ],
       responses: {
         200: {
           description: 'List of all orders',
@@ -619,7 +626,7 @@ const paths = {
           }
         },
         401: { description: 'Unauthorized' },
-        403: { description: 'Forbidden - ADMIN role required' }
+        403: { description: 'Forbidden - AGENT or ADMIN role required' }
       }
     }
   },
@@ -747,7 +754,7 @@ const paths = {
         201: { description: 'Delivery created successfully' },
         400: { description: 'Order not found or delivery already exists' },
         401: { description: 'Unauthorized' },
-        403: { description: 'Forbidden - ADMIN role required' }
+        403: { description: 'Forbidden - AGENT or ADMIN role required' }
       }
     }
   },
@@ -862,7 +869,7 @@ const paths = {
           }
         },
         401: { description: 'Unauthorized' },
-        403: { description: 'Forbidden - ADMIN role required' }
+        403: { description: 'Forbidden - AGENT or ADMIN role required' }
       }
     }
   },
@@ -1090,8 +1097,16 @@ const paths = {
                       }
                     }
                   },
-                  analyzedBy: { type: 'string' },
-                  analyzedAt: { type: 'string', format: 'date-time' }
+                  analyzedAt: { type: 'string', format: 'date-time' },
+                  debug: {
+                    type: 'object',
+                    properties: {
+                      imageSize: { type: 'string' },
+                      modelVersion: { type: 'string' },
+                      apiResponse: { type: 'object' }
+                    },
+                    description: 'Debug information (only included when no predictions found)'
+                  }
                 }
               }
             }
@@ -1140,8 +1155,16 @@ const paths = {
                   confidencePercent: { type: 'string', example: '95.00' },
                   message: { type: 'string' },
                   allPredictions: { type: 'array' },
-                  analyzedBy: { type: 'string' },
-                  analyzedAt: { type: 'string', format: 'date-time' }
+                  analyzedAt: { type: 'string', format: 'date-time' },
+                  debug: {
+                    type: 'object',
+                    properties: {
+                      imageSize: { type: 'string' },
+                      modelVersion: { type: 'string' },
+                      apiResponse: { type: 'object' }
+                    },
+                    description: 'Debug information (only included when no predictions found)'
+                  }
                 }
               }
             }
