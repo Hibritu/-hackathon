@@ -1,0 +1,33 @@
+import pool from '../db/connection.js';
+
+async function checkTables() {
+  try {
+    console.log('🔍 Checking database tables...\n');
+    
+    const result = await pool.query(`
+      SELECT table_name 
+      FROM information_schema.tables 
+      WHERE table_schema = 'public' 
+      ORDER BY table_name;
+    `);
+    
+    if (result.rows.length === 0) {
+      console.log('❌ No tables found in database!');
+      console.log('Run: npm run db:migrate');
+    } else {
+      console.log('✅ Found tables:');
+      result.rows.forEach(row => {
+        console.log(`   - ${row.table_name}`);
+      });
+    }
+    
+    await pool.end();
+    process.exit(0);
+  } catch (error) {
+    console.error('❌ Error checking tables:', error.message);
+    await pool.end();
+    process.exit(1);
+  }
+}
+
+checkTables();

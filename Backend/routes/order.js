@@ -93,13 +93,13 @@ router.post('/', authenticate, authorize('BUYER'), async (req, res) => {
   }
 });
 
-// Update payment status (mock payment processing)
-router.patch('/:id/payment', authenticate, async (req, res) => {
+// Update payment status (ADMIN only)
+router.patch('/:id/payment', authenticate, authorize('ADMIN'), async (req, res) => {
   try {
     const { id } = req.params;
     const { paymentStatus } = req.body;
 
-    // Verify ownership or admin
+    // Check if order exists
     const orderResult = await pool.query(
       'SELECT buyer_id FROM orders WHERE id = $1',
       [id]
@@ -107,10 +107,6 @@ router.patch('/:id/payment', authenticate, async (req, res) => {
 
     if (orderResult.rows.length === 0) {
       return res.status(404).json({ error: 'Order not found' });
-    }
-
-    if (orderResult.rows[0].buyer_id !== req.user.id && req.user.role !== 'ADMIN') {
-      return res.status(403).json({ error: 'Access denied' });
     }
 
     const updateResult = await pool.query(

@@ -7,6 +7,7 @@ import verifyRoutes from './routes/verify.js';
 import orderRoutes from './routes/order.js';
 import userRoutes from './routes/user.js';
 import deliveryRoutes from './routes/delivery.js';
+import chapaRoutes from './routes/chapa.js';
 import setupSwagger from './swagger.js';
 dotenv.config();
 
@@ -27,7 +28,7 @@ app.use('/api/verify', verifyRoutes);
 app.use('/api/order', orderRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/delivery', deliveryRoutes);
-
+app.use('/api/chapa', chapaRoutes);
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'FishLink API is running' });

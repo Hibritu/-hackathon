@@ -87,12 +87,12 @@ BEGIN
     SELECT 1 FROM pg_proc WHERE proname = 'set_timestamp'
   ) THEN
     CREATE OR REPLACE FUNCTION set_timestamp()
-    RETURNS TRIGGER AS $$
+    RETURNS TRIGGER AS $func$
     BEGIN
       NEW.updated_at = NOW();
       RETURN NEW;
     END;
-    $$ LANGUAGE plpgsql;
+    $func$ LANGUAGE plpgsql;
   END IF;
 END$$;
 

@@ -541,8 +541,8 @@ const paths = {
   '/api/order/{id}/payment': {
     patch: {
       tags: ['Order'],
-      summary: 'Update payment status (buyer or ADMIN)',
-      description: 'Update order payment status. Buyer can update their own orders, ADMIN can update any.',
+      summary: 'Update payment status (ADMIN only)',
+      description: 'Update order payment status. Only ADMIN can update payment status.',
       security: [{ bearerAuth: [] }],
       parameters: [
         { in: 'path', name: 'id', required: true, schema: { type: 'integer' } }
@@ -561,7 +561,8 @@ const paths = {
       },
       responses: {
         200: { description: 'Payment status updated' },
-        403: { description: 'Access denied' },
+        401: { description: 'Unauthorized' },
+        403: { description: 'Forbidden - ADMIN role required' },
         404: { description: 'Order not found' }
       }
     }
@@ -889,6 +890,57 @@ const paths = {
           }
         },
         401: { description: 'Unauthorized' }
+      }
+    }
+  },
+  '/api/chapa/pay': {
+    post: {
+      tags: ['Payment'],
+      summary: 'Initialize Chapa payment',
+      description: 'Initialize a payment transaction with Chapa payment gateway',
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              required: ['amount', 'currency', 'email', 'first_name', 'last_name'],
+              properties: {
+                amount: { type: 'number', example: 1200 },
+                currency: { type: 'string', example: 'ETB' },
+                email: { type: 'string', format: 'email', example: 'buyer@test.com' },
+                first_name: { type: 'string', example: 'John' },
+                last_name: { type: 'string', example: 'Doe' },
+                phone_number: { type: 'string', example: '0911222333' },
+                callback_url: { type: 'string', example: 'https://yourapp.com/api/chapa/callback' },
+                return_url: { type: 'string', example: 'https://yourapp.com/payment/success' }
+              }
+            }
+          }
+        }
+      },
+      responses: {
+        200: {
+          description: 'Payment initialized successfully',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  status: { type: 'string', example: 'success' },
+                  message: { type: 'string' },
+                  data: {
+                    type: 'object',
+                    properties: {
+                      checkout_url: { type: 'string', description: 'URL to redirect user for payment' }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        500: { description: 'Payment initiation failed' }
       }
     }
   }

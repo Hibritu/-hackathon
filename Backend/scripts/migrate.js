@@ -7,15 +7,18 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 async function migrate() {
+  const client = await pool.connect()
   try {
     const schemaPath = path.join(__dirname, '..', 'db', 'schema.sql')
     const schema = fs.readFileSync(schemaPath, 'utf8')
     
     console.log('🔄 Running database migrations...')
     
-    await pool.query(schema)
+    // Execute the entire schema as a single transaction
+    await client.query(schema)
     
     console.log('✅ Database migrations completed successfully!')
+    client.release()
     await pool.end()
     
     if (process.env.AUTO_EXIT !== 'false') {
@@ -23,6 +26,8 @@ async function migrate() {
     }
   } catch (error) {
     console.error('❌ Migration failed:', error)
+    console.error('Error details:', error.message)
+    client.release()
     await pool.end()
     
     if (process.env.AUTO_EXIT !== 'false') {
@@ -32,7 +37,9 @@ async function migrate() {
 }
 
 // Only run if called directly
-if (import.meta.url === `file://${process.argv[1]}`) {
+const isMainModule = import.meta.url.endsWith('migrate.js') && 
+                     process.argv[1] && process.argv[1].includes('migrate.js');
+if (isMainModule) {
   migrate()
 }
 
