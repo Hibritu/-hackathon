@@ -71,8 +71,8 @@ router.post('/create-and-pay', authenticate, authorize('BUYER'), async (req, res
         callback_url: `${process.env.BACKEND_URL || 'http://localhost:5000'}/api/chapa/callback`,
         return_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/payment/success`,
         customization: {
-          title: `FishLink - ${catchData.fish_name}`,
-          description: `Payment for ${catchData.fish_name} from ${catchData.fisher_name}`
+          title: `Fish ${catchData.id}`.replace(/[^a-zA-Z0-9 _-]/g, ' ').trim(),
+          description: `Fish ${catchData.fish_name}`.replace(/[^a-zA-Z0-9 _-]/g, ' ').trim()
         }
       },
       {
