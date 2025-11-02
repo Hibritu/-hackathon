@@ -1,96 +1,124 @@
-import { createContext, useContext, useState, useEffect } from 'react'
-import axios from 'axios'
-import toast from 'react-hot-toast'
+import { createContext, useContext, useState, useEffect } from 'react';
+import { authAPI } from '../services/api';
+import toast from 'react-hot-toast';
 
-// Configure axios
-axios.defaults.baseURL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
-
-const AuthContext = createContext()
+const AuthContext = createContext();
 
 export const useAuth = () => {
-  const context = useContext(AuthContext)
+  const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider')
+    throw new Error('useAuth must be used within an AuthProvider');
   }
-  return context
-}
+  return context;
+};
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('token')
-    const userData = localStorage.getItem('user')
+    const token = localStorage.getItem('token');
+    const storedUser = localStorage.getItem('user');
     
-    if (token && userData) {
+    if (token && storedUser) {
       try {
-        setUser(JSON.parse(userData))
-        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+        setUser(JSON.parse(storedUser));
       } catch (error) {
-        console.error('Error parsing user data:', error)
-        localStorage.removeItem('token')
-        localStorage.removeItem('user')
+        console.error('Error parsing user data:', error);
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
       }
     }
-    setLoading(false)
-  }, [])
+    setLoading(false);
+  }, []);
 
-  const login = async (phone, password) => {
+  const login = async (credentials, useEmail = false) => {
     try {
-      const response = await axios.post('/api/auth/login', { phone, password })
-      const { user, token } = response.data
+      const response = useEmail 
+        ? await authAPI.loginEmail(credentials)
+        : await authAPI.login(credentials);
       
-      localStorage.setItem('token', token)
-      localStorage.setItem('user', JSON.stringify(user))
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
-      setUser(user)
+      const { user: userData, token } = response.data;
       
-      toast.success('Login successful!')
-      return { success: true, user }
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(userData));
+      setUser(userData);
+      
+      toast.success('Login successful!');
+      return { success: true, user: userData };
     } catch (error) {
-      const message = error.response?.data?.error || 'Login failed'
-      toast.error(message)
-      return { success: false, error: message }
+      const message = error.response?.data?.error || 'Login failed';
+      toast.error(message);
+      return { success: false, error: message };
     }
-  }
+  };
 
-  const register = async (name, phone, password, role) => {
+  const register = async (userData) => {
     try {
-      const response = await axios.post('/api/auth/register', {
-        name,
-        phone,
-        password,
-        role
-      })
-      const { user, token } = response.data
-      
-      localStorage.setItem('token', token)
-      localStorage.setItem('user', JSON.stringify(user))
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
-      setUser(user)
-      
-      toast.success('Registration successful!')
-      return { success: true, user }
+      const response = await authAPI.register(userData);
+      toast.success('Registration successful! Please verify your email.');
+      return { success: true, data: response.data };
     } catch (error) {
-      const message = error.response?.data?.error || 'Registration failed'
-      toast.error(message)
-      return { success: false, error: message }
+      const message = error.response?.data?.error || 'Registration failed';
+      toast.error(message);
+      return { success: false, error: message };
     }
-  }
+  };
+
+  const sendOTP = async (email, name) => {
+    try {
+      const response = await authAPI.sendOTP({ email, name });
+      toast.success('OTP sent to your email!');
+      return { success: true, data: response.data };
+    } catch (error) {
+      const message = error.response?.data?.error || 'Failed to send OTP';
+      toast.error(message);
+      return { success: false, error: message };
+    }
+  };
+
+  const verifyOTP = async (email, otp) => {
+    try {
+      const response = await authAPI.verifyOTP({ email, otp });
+      const { user: userData, token } = response.data;
+      
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(userData));
+      setUser(userData);
+      
+      toast.success('Email verified successfully!');
+      return { success: true, user: userData, token };
+    } catch (error) {
+      const message = error.response?.data?.error || 'OTP verification failed';
+      toast.error(message);
+      return { success: false, error: message };
+    }
+  };
 
   const logout = () => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
-    delete axios.defaults.headers.common['Authorization']
-    setUser(null)
-    toast.success('Logged out successfully')
-  }
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setUser(null);
+    toast.success('Logged out successfully!');
+  };
 
-  return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
-      {children}
-    </AuthContext.Provider>
-  )
-}
+  const updateUser = (userData) => {
+    setUser(userData);
+    localStorage.setItem('user', JSON.stringify(userData));
+  };
+
+  const value = {
+    user,
+    loading,
+    login,
+    register,
+    sendOTP,
+    verifyOTP,
+    logout,
+    updateUser,
+    isAuthenticated: !!user,
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
 

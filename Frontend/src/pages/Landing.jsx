@@ -1,129 +1,169 @@
-import { Link } from 'react-router-dom'
-import { Fish, Shield, TrendingUp, Users, QrCode } from 'lucide-react'
-import { useAuth } from '../contexts/AuthContext'
+import { Link } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { 
+  FiShield, 
+  FiCheckCircle, 
+  FiPackage, 
+  FiTrendingUp,
+  FiUsers,
+  FiAnchor 
+} from 'react-icons/fi';
 
 const Landing = () => {
-  const { user } = useAuth()
+  const { isAuthenticated } = useAuth();
 
-  const roles = [
-    { name: 'Fisher', icon: Fish, path: '/fisher', color: 'bg-primary-600' },
-    { name: 'Agent', icon: Users, path: '/agent', color: 'bg-aqua-600' },
-    { name: 'Buyer', icon: TrendingUp, path: '/buyer', color: 'bg-green-600' },
-    { name: 'Admin', icon: Shield, path: '/admin', color: 'bg-purple-600' }
-  ]
+  const features = [
+    {
+      icon: <FiShield className="w-8 h-8" />,
+      title: 'Verified Quality',
+      description: 'All catches are verified by agents to ensure authenticity and quality.',
+    },
+    {
+      icon: <FiCheckCircle className="w-8 h-8" />,
+      title: 'QR Code Tracking',
+      description: 'Track fish from catch to delivery with secure QR code verification.',
+    },
+    {
+      icon: <FiPackage className="w-8 h-8" />,
+      title: 'Fresh Delivery',
+      description: 'Get fresh fish delivered directly from verified fishers.',
+    },
+    {
+      icon: <FiTrendingUp className="w-8 h-8" />,
+      title: 'Transparent Supply Chain',
+      description: 'Complete visibility into the fish supply chain for buyers.',
+    },
+  ];
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-to-b from-primary-50 to-white dark:from-gray-900 dark:to-gray-800">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary-600 via-aqua-600 to-primary-800 text-white py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <Fish className="w-20 h-20 mx-auto mb-6 animate-bounce" />
-            <h1 className="text-5xl md:text-6xl font-bold mb-6">
-              FishLink
-            </h1>
-            <p className="text-xl md:text-2xl mb-4 text-blue-100">
-              Fair, Fresh, and Fully Traceable Fish Marketplace
-            </p>
-            <p className="text-lg text-blue-200 mb-8 max-w-2xl mx-auto">
-              Empowering Ethiopian fishers by increasing their income, eliminating middlemen, 
-              and bringing digital traceability and trust to local fish trade.
-            </p>
-            {!user && (
-              <div className="flex flex-wrap justify-center gap-4">
-                <Link to="/register" className="btn-secondary text-lg px-8 py-3">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div className="text-center">
+          <div className="flex justify-center mb-6">
+            <FiAnchor className="w-16 h-16 text-primary-600" />
+          </div>
+          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6">
+            Welcome to <span className="text-primary-600">FishLink</span>
+          </h1>
+          <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto">
+            Fresh Fish Trace Management System - Ensuring transparency, quality, and trust 
+            in every catch from lake to table.
+          </p>
+          <div className="flex justify-center space-x-4">
+            {!isAuthenticated ? (
+              <>
+                <Link
+                  to="/register"
+                  className="px-8 py-3 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition"
+                >
                   Get Started
                 </Link>
-                <Link to="/verify" className="bg-white text-primary-600 hover:bg-gray-100 font-semibold py-3 px-8 rounded-lg transition-colors text-lg">
-                  Verify QR Code
+                <Link
+                  to="/login"
+                  className="px-8 py-3 bg-white dark:bg-gray-800 text-primary-600 border-2 border-primary-600 rounded-lg font-semibold hover:bg-primary-50 dark:hover:bg-gray-700 transition"
+                >
+                  Sign In
                 </Link>
-              </div>
+              </>
+            ) : (
+              <Link
+                to="/verify"
+                className="px-8 py-3 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition"
+              >
+                Verify QR Code
+              </Link>
             )}
           </div>
         </div>
-      </section>
+      </div>
 
       {/* Features Section */}
-      <section className="py-16 bg-white dark:bg-gray-800">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-12">
+          Why Choose FishLink?
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {features.map((feature, index) => (
+            <div
+              key={index}
+              className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg hover:shadow-xl transition"
+            >
+              <div className="text-primary-600 mb-4">{feature.icon}</div>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                {feature.title}
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300">
+                {feature.description}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* How It Works Section */}
+      <div className="bg-gray-100 dark:bg-gray-800 py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center mb-12 text-gray-900 dark:text-white">
-            Why FishLink?
+          <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-12">
+            How It Works
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="card text-center">
-              <Shield className="w-12 h-12 mx-auto mb-4 text-primary-600" />
-              <h3 className="text-xl font-semibold mb-2">Fully Traceable</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Every fish comes with an encrypted QR code that traces its origin from the fisherman to your fork.
+            <div className="text-center">
+              <div className="bg-primary-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <FiUsers className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                1. Fisher Registers Catch
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300">
+                Fishers register their catch with details like fish type, weight, price, and location.
               </p>
             </div>
-            <div className="card text-center">
-              <TrendingUp className="w-12 h-12 mx-auto mb-4 text-aqua-600" />
-              <h3 className="text-xl font-semibold mb-2">Fair Income</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Fishers get fair prices directly, eliminating middlemen and increasing their earnings.
+            <div className="text-center">
+              <div className="bg-primary-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <FiCheckCircle className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                2. Agent Verifies
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300">
+                Agents verify the catch quality and authenticity, generating a QR code for traceability.
               </p>
             </div>
-            <div className="card text-center">
-              <QrCode className="w-12 h-12 mx-auto mb-4 text-green-600" />
-              <h3 className="text-xl font-semibold mb-2">Verified Quality</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                All fish are verified by agents before being available for purchase, ensuring freshness and quality.
+            <div className="text-center">
+              <div className="bg-primary-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <FiPackage className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                3. Buyer Orders
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300">
+                Buyers browse verified catches, place orders, and track delivery with QR verification.
               </p>
             </div>
           </div>
         </div>
-      </section>
-
-      {/* Role Selection Section */}
-      {!user && (
-        <section className="py-16 bg-gray-50 dark:bg-gray-900">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-3xl font-bold text-center mb-12 text-gray-900 dark:text-white">
-              Login as
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {roles.map((role) => {
-                const Icon = role.icon
-                return (
-                  <Link
-                    key={role.name}
-                    to={`/login?role=${role.name.toLowerCase()}`}
-                    className={`${role.color} text-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 text-center`}
-                  >
-                    <Icon className="w-12 h-12 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold">{role.name}</h3>
-                    <p className="text-sm mt-2 opacity-90">
-                      {role.name === 'Fisher' && 'Register and sell your catch'}
-                      {role.name === 'Agent' && 'Verify and manage fish listings'}
-                      {role.name === 'Buyer' && 'Browse and buy verified fish'}
-                      {role.name === 'Admin' && 'Monitor the entire platform'}
-                    </p>
-                  </Link>
-                )
-              })}
-            </div>
-          </div>
-        </section>
-      )}
+      </div>
 
       {/* CTA Section */}
-      <section className="py-16 bg-gradient-to-r from-primary-600 to-aqua-600 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold mb-4">Ready to get started?</h2>
-          <p className="text-xl mb-8 text-blue-100">
-            Join FishLink today and be part of the transparent fish trade revolution.
-          </p>
-          {!user && (
-            <Link to="/register" className="bg-white text-primary-600 hover:bg-gray-100 font-semibold py-3 px-8 rounded-lg transition-colors text-lg inline-block">
-              Create Account
-            </Link>
-          )}
-        </div>
-      </section>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+          Ready to get started?
+        </h2>
+        <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
+          Join FishLink today and experience transparent fish traceability.
+        </p>
+        {!isAuthenticated && (
+          <Link
+            to="/register"
+            className="inline-block px-8 py-3 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition"
+          >
+            Create Account
+          </Link>
+        )}
+      </div>
     </div>
-  )
-}
+  );
+};
 
-export default Landing
-
+export default Landing;
