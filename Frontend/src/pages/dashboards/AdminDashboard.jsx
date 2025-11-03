@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { catchAPI, orderAPI, deliveryAPI } from '../../services/api';
 import toast from 'react-hot-toast';
 import { 
@@ -85,13 +86,23 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Admin Dashboard
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Overview of the entire FishLink system
-          </p>
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+              Admin Dashboard
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400">
+              Overview of the entire FishLink system
+            </p>
+          </div>
+          <div className="flex items-center space-x-3">
+            <Link
+              to="/dashboard/admin/income"
+              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
+            >
+              View Income
+            </Link>
+          </div>
         </div>
 
         {/* Pending Verification */}

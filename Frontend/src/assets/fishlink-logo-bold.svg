@@ -1,0 +1,15 @@
+<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="oceanBold" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#06b6d4"/>
+      <stop offset="0.5" stop-color="#3b82f6"/>
+      <stop offset="1" stop-color="#0ea5e9"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="40" height="40" rx="10" fill="#0b1220"/>
+  <g transform="translate(4,6)">
+    <path d="M12 2c6.5 0 12 5.4 12 12s-5.5 12-12 12c-3.5 0-7.2-1.9-10.3-5.1-.6-.6-.6-1.6 0-2.2C4.8 13.6 8.5 12 12 12c1.9 0 3.7.5 5.3 1.5C16.7 9.8 14.6 7 12 7 8.7 7 5.3 8.6 1.7 11.7c-.6.6-1.6.6-2.2 0-.6-.6-.6-1.6 0-2.2C3.1 6 7.2 2 12 2z" fill="url(#oceanBold)"/>
+    <circle cx="14" cy="7.5" r="1.4" fill="#e2f3ff"/>
+    <path d="M22 16c2.2 1.2 4.5 1.2 6.7 0" stroke="url(#oceanBold)" stroke-width="2" stroke-linecap="round"/>
+  </g>
+</svg>

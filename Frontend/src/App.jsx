@@ -15,12 +15,15 @@ import QRVerify from './pages/QRVerify';
 import Freshness from './pages/Freshness';
 import PaymentSuccess from './pages/PaymentSuccess';
 import Market from './pages/Market';
+import AdminDeliveries from './pages/admin/AdminDeliveries';
+import AdminIncome from './pages/admin/AdminIncome';
 
 // Dashboards
 import AdminDashboard from './pages/dashboards/AdminDashboard';
 import AgentDashboard from './pages/dashboards/AgentDashboard';
 import BuyerDashboard from './pages/dashboards/BuyerDashboard';
 import FisherDashboard from './pages/dashboards/FisherDashboard';
+import FisherEarnings from './pages/dashboards/FisherEarnings';
 
 function App() {
   return (
@@ -46,6 +49,26 @@ function App() {
                   element={
                     <PrivateRoute allowedRoles={['ADMIN']}>
                       <AdminDashboard />
+                    </PrivateRoute>
+                  }
+                />
+
+                {/* Admin: Deliveries */}
+                <Route
+                  path="/admin/deliveries"
+                  element={
+                    <PrivateRoute allowedRoles={['ADMIN']}>
+                      <AdminDeliveries />
+                    </PrivateRoute>
+                  }
+                />
+
+                {/* Admin: Income */}
+                <Route
+                  path="/dashboard/admin/income"
+                  element={
+                    <PrivateRoute allowedRoles={['ADMIN']}>
+                      <AdminIncome />
                     </PrivateRoute>
                   }
                 />
@@ -76,6 +99,15 @@ function App() {
                   element={
                     <PrivateRoute allowedRoles={['FISHER']}>
                       <FisherDashboard />
+                    </PrivateRoute>
+                  }
+                />
+                {/* Fisher: Earnings */}
+                <Route
+                  path="/dashboard/fisher/earnings"
+                  element={
+                    <PrivateRoute allowedRoles={['FISHER']}>
+                      <FisherEarnings />
                     </PrivateRoute>
                   }
                 />

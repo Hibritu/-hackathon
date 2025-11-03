@@ -46,6 +46,14 @@ export const authAPI = {
   verifyOTP: (data) => api.post('/auth/verify-otp', data),
 };
 
+// Payouts API
+export const payoutsAPI = {
+  getMine: (params) => api.get('/payouts/me', { params }),
+  request: (data) => api.post('/payouts/request', data),
+  adminList: (params) => api.get('/payouts/admin', { params }),
+  adminUpdateStatus: (id, status, notes) => api.patch(`/payouts/${id}/status`, { status, notes }),
+};
+
 // User API
 export const userAPI = {
   getProfile: (id) => api.get(`/user/${id}`),
@@ -55,6 +63,7 @@ export const userAPI = {
 // Catch API
 export const catchAPI = {
   getAll: (params) => api.get('/catch', { params }),
+  getAvailable: (params) => api.get('/catch/available', { params }),
   getMyCatches: () => api.get('/catch/my-catches'),
   getAllForAdmin: () => api.get('/catch/all'),
   create: (data) => api.post('/catch', data),
@@ -94,6 +103,12 @@ export const paymentAPI = {
 // Order + Payment combined API
 export const orderPaymentAPI = {
   createAndPay: (data) => api.post('/order-payment/create-and-pay', data),
+  pay: (orderId) => api.post(`/order-payment/pay/${orderId}`),
+  quote: (catchId, delivery) => api.post('/order-payment/quote', { catchId, delivery }),
+  getAdminDeliveries: () => api.get('/order-payment/deliveries/admin'),
+  updateDeliveryStatus: (id, status) => api.patch(`/order-payment/deliveries/${id}/status`, { status }),
+  fisherEarnings: (params) => api.get('/order-payment/earnings/me', { params }),
+  adminIncome: (params) => api.get('/order-payment/income/admin', { params }),
 };
 
 // Fish Freshness API

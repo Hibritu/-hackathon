@@ -1,4 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
+import Logo from '../assets/fishlink-logo.svg';
+import FishIcon from '../assets/fishlink-icon-fish.svg';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { 
@@ -40,12 +42,15 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-50">
+    <nav className="bg-white/90 dark:bg-gray-800/80 backdrop-blur shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <Link to="/" className="flex items-center space-x-2">
-              <span className="text-2xl font-bold text-primary-600">FishLink</span>
+            <Link to="/" className="flex items-center space-x-2 group">
+              <img src={FishIcon} alt="FishLink" className="h-7 w-7 md:h-8 md:w-8" />
+              <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-sky-400 bg-clip-text text-transparent font-extrabold text-xl md:text-2xl tracking-tight">
+                FishLink
+              </span>
             </Link>
           </div>
 
@@ -58,6 +63,14 @@ const Navbar = () => {
                 >
                   Dashboard
                 </Link>
+                {user?.role === 'ADMIN' && (
+                  <Link
+                    to="/admin/deliveries"
+                    className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600"
+                  >
+                    Admin Deliveries
+                  </Link>
+                )}
                 <Link
                   to="/verify"
                   className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary-600"

@@ -10,6 +10,7 @@ import deliveryRoutes from './routes/delivery.js';
 import chapaRoutes from './routes/chapa.js';
 import orderPaymentRoutes from './routes/order-payment.js';
 import fishFreshnessRoutes from './routes/fish-freshness.js';
+import payoutsRoutes from './routes/payouts.js';
 import setupSwagger from './swagger.js';
 dotenv.config();
 
@@ -33,6 +34,7 @@ app.use('/api/delivery', deliveryRoutes);
 app.use('/api/chapa', chapaRoutes);
 app.use('/api/order-payment', orderPaymentRoutes);
 app.use('/api/fish-freshness', fishFreshnessRoutes);
+app.use('/api/payouts', payoutsRoutes);
 // Root route
 app.get('/', (req, res) => {
   res.json({

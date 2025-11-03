@@ -5,12 +5,30 @@
 @layer base {
   body {
     @apply bg-white dark:bg-gray-900 text-gray-900 dark:text-white;
+    background-attachment: fixed;
+    background-image: var(--ocean-bg);
+  }
+
+  :root {
+    /* Light mode subtle ocean background */
+    --ocean-bg: radial-gradient(1200px 600px at -10% -10%, rgba(6, 182, 212, 0.08), transparent 60%),
+                radial-gradient(1000px 500px at 110% 110%, rgba(59, 130, 246, 0.08), transparent 60%),
+                linear-gradient(180deg, #f8fbff 0%, #ffffff 20%);
+  }
+
+  .dark {
+    /* Dark mode deep ocean background */
+    --ocean-bg: radial-gradient(1000px 500px at -10% -10%, rgba(14, 165, 233, 0.12), transparent 60%),
+                radial-gradient(900px 450px at 110% 110%, rgba(6, 182, 212, 0.10), transparent 60%),
+                linear-gradient(180deg, #0b1220 0%, #0f172a 30%, #111827 100%);
   }
 }
 
 @layer components {
   .btn-primary {
-    @apply px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500;
+    @apply px-4 py-2 text-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2;
+    @apply bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 dark:from-sky-500 dark:to-indigo-600 dark:hover:from-sky-600 dark:hover:to-indigo-700;
+    @apply focus:ring-cyan-500 dark:focus:ring-sky-500 focus:ring-offset-white dark:focus:ring-offset-gray-900;
   }
   
   .btn-secondary {
@@ -18,11 +36,28 @@
   }
   
   .card {
-    @apply bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6;
+    @apply bg-white dark:bg-gray-800 rounded-lg shadow p-6 border border-gray-100 dark:border-gray-700/60;
   }
   
   .input-field {
     @apply w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white;
+  }
+
+  .brand-gradient {
+    @apply bg-gradient-to-r from-cyan-400 via-blue-500 to-sky-400 bg-clip-text text-transparent;
+  }
+
+  .divider-wave {
+    background-image: linear-gradient(90deg, rgba(6,182,212,0.2), rgba(59,130,246,0.2), rgba(14,165,233,0.2));
+    height: 2px;
+    border-radius: 9999px;
+  }
+}
+
+/* Force top-level page wrappers to be transparent so the ocean background shows */
+@layer base {
+  .min-h-screen {
+    background-color: transparent !important;
   }
 }
 
